@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
  set(CMAKE_CXX_FLAGS "-std=c++1y ${CMAKE_CXX_FLAGS}")
  set(CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -undefined dynamic_lookup")
@@ -10,12 +10,12 @@ SET(PROJECT_NAME "CATS")
 
 project(${PROJECT_NAME})
 # SET PATHS #
-SET(CATS_DESTINATION "/home/dmihaylov/Apps/CATS")#where to install CATS. Folder must exist.
-SET(ROOT_PATH "/home/dmihaylov/Apps/root-6.14.00/obj")#path to ROOT
+SET(CATS_DESTINATION "/home/sschneider/Apps/CATS")#where to install CATS. Folder must exist.
+SET(ROOT_PATH $ROOTSYS)#path to ROOT
 #SET(ROOT_PATH "/home/dmihaylov/root")
 SET(GSL_INCLUDE "/usr/include/gsl")#where are all GSL related .h files
 SET(GSL_LIB "/usr/lib")#where are the GSL .a and .so files
-SET(CATS_FOLDER "/home/dmihaylov/Dudek_Ubuntu/DLM_GitHub")#where is the CATS main folder located
+SET(CATS_FOLDER "/home/sschneider/hhCorr/DLM")#where is the CATS main folder located
 # DO NOT CHANGE THE REST #
 
 SET(VERSION_MAJOR 2)
@@ -43,14 +43,19 @@ add_library(CATSextended SHARED 	${CATS_FOLDER}/DLM_RootTools/DLM_CRAB_PM.cpp
 					${CATS_FOLDER}/CATS_Extentions/DLM_CkModels.cpp 
 					${CATS_FOLDER}/CATS_Extentions/DLM_Potentials.cpp 
 					${CATS_FOLDER}/CATS_Extentions/DLM_Source.cpp
-					${CATS_FOLDER}/CATS_Extentions/DLM_SmearedCats.cpp
-					${CATS_FOLDER}/CATS_Extentions/DLM_StefanoPotentials.cpp)
+					${CATS_FOLDER}/CATS_Extentions/DLM_StefanoPotentials.cpp
+					${CATS_FOLDER}/CATS_Extentions/DLM_ResponseMatrix.cpp
+					${CATS_FOLDER}/CATS_Extentions/DLM_Ck.cpp
+					${CATS_FOLDER}/CATS_Extentions/DLM_CkDecomp.cpp
+					${CATS_FOLDER}/CATS_Extentions/DLM_WfModel.cpp)
 add_library(CATSdev	SHARED		${CATS_FOLDER}/CATS_Extentions/DLM_CkDecomposition.cpp 
 					${CATS_FOLDER}/CATS_Extentions/DLM_Fitters.cpp 
-					${CATS_FOLDER}/CATS_Extentions/DLM_ResponseMatrix.cpp
-					${CATS_FOLDER}/CATS_Extentions/DLM_WfModel.cpp
 					${CATS_FOLDER}/DLM_RootTools/DLM_SubPads.cpp
-					${CATS_FOLDER}/DLM_RootTools/DLM_DrawingTools.cpp)
+					${CATS_FOLDER}/DLM_RootTools/DLM_DrawingTools.cpp
+					${CATS_FOLDER}/DLM_RootTools/DLM_HistoAnalysis.cpp
+					${CATS_FOLDER}/DLM_RootTools/DLM_RootWrapper.cpp
+					${CATS_FOLDER}/DLM_RootTools/DLM_DecayMatrix.cpp)					
+
 
 execute_process(COMMAND bash -c "${ROOT_PATH}/bin/root-config --cflags" OUTPUT_VARIABLE CFLAGS)
 execute_process(COMMAND bash -c "${ROOT_PATH}/bin/root-config --libs" OUTPUT_VARIABLE LIBS)
@@ -66,7 +71,8 @@ string(REGEX REPLACE "\n$" "" LIBS "${LIBS}")
 #string(REGEX REPLACE "\n$" "" CATS_INCLUDE "${CATS_INCLUDE}")
 #string(REGEX REPLACE "\n$" "" CATS_LIBS "${CATS_LIBS}")
 
-string(APPEND CFLAGS " -O2 -Wall -lgomp -pthread -fopenmp -std=c++11")
+set(CFLAGS " -O2 -Wall -lgomp -pthread -fopenmp -std=c++11 ${CFLAGS}")
+#string(APPEND CFLAGS " -O2 -Wall -lgomp -pthread -fopenmp -std=c++11")
 #string(APPEND CFLAGS " -O2 -pthread ")
 
 find_package(OpenMP)
@@ -90,24 +96,29 @@ install (FILES ${CATS_FOLDER}/CATS/CATS.h DESTINATION ${CATS_DESTINATION}/includ
 install (FILES ${CATS_FOLDER}/CATS/CATStools.h DESTINATION ${CATS_DESTINATION}/include)
 install (FILES ${CATS_FOLDER}/CATS/CATSconstants.h DESTINATION ${CATS_DESTINATION}/include)
 install (FILES ${CATS_FOLDER}/DLM_RootTools/DLM_CRAB_PM.h DESTINATION ${CATS_DESTINATION}/include)
-install (FILES ${CATS_FOLDER}/DLM_RootTools/DLM_SubPads.h DESTINATION ${CATS_DESTINATION}/include)
-install (FILES ${CATS_FOLDER}/DLM_RootTools/DLM_DrawingTools.h DESTINATION ${CATS_DESTINATION}/include)
 install (FILES ${CATS_FOLDER}/DLM_MathTools/DLM_Integration.h DESTINATION ${CATS_DESTINATION}/include)
 install (FILES ${CATS_FOLDER}/DLM_MathTools/DLM_Random.h DESTINATION ${CATS_DESTINATION}/include)
 install (FILES ${CATS_FOLDER}/DLM_MathTools/DLM_Histo.h DESTINATION ${CATS_DESTINATION}/include)
 install (FILES ${CATS_FOLDER}/DLM_MathTools/DLM_Bessel.h DESTINATION ${CATS_DESTINATION}/include)
 install (FILES ${CATS_FOLDER}/DLM_MathTools/DLM_MathFunctions.h DESTINATION ${CATS_DESTINATION}/include)
-install (FILES ${CATS_FOLDER}/CATS_Extentions/DLM_CkDecomposition.h DESTINATION ${CATS_DESTINATION}/include)
+install (FILES ${CATS_FOLDER}/CATS_Extentions/DLM_Ck.h DESTINATION ${CATS_DESTINATION}/include)
+install (FILES ${CATS_FOLDER}/CATS_Extentions/DLM_CkDecomp.h DESTINATION ${CATS_DESTINATION}/include)
 install (FILES ${CATS_FOLDER}/CATS_Extentions/DLM_CkModels.h DESTINATION ${CATS_DESTINATION}/include)
-install (FILES ${CATS_FOLDER}/CATS_Extentions/DLM_Fitters.h DESTINATION ${CATS_DESTINATION}/include)
 install (FILES ${CATS_FOLDER}/CATS_Extentions/DLM_Potentials.h DESTINATION ${CATS_DESTINATION}/include)
 install (FILES ${CATS_FOLDER}/CATS_Extentions/DLM_ResponseMatrix.h DESTINATION ${CATS_DESTINATION}/include)
 install (FILES ${CATS_FOLDER}/CATS_Extentions/DLM_Source.h DESTINATION ${CATS_DESTINATION}/include)
 install (FILES ${CATS_FOLDER}/CATS_Extentions/DLM_StefanoPotentials.h DESTINATION ${CATS_DESTINATION}/include)
 install (FILES ${CATS_FOLDER}/CATS_Extentions/DLM_WfModel.h DESTINATION ${CATS_DESTINATION}/include)
-install (FILES ${CATS_FOLDER}/CATS_Extentions/DLM_SmearedCats.h DESTINATION ${CATS_DESTINATION}/include)
+#install (FILES ${CATS_FOLDER}/CATS_Extentions/DLM_SmearedCats.h DESTINATION ${CATS_DESTINATION}/include)
 install (FILES ${CATS_FOLDER}/DLM_CppTools/DLM_Sort.h DESTINATION ${CATS_DESTINATION}/include)
 install (FILES ${CATS_FOLDER}/DLM_CppTools/DLM_CppTools.h DESTINATION ${CATS_DESTINATION}/include)
+install (FILES ${CATS_FOLDER}/CATS_Extentions/DLM_CkDecomposition.h DESTINATION ${CATS_DESTINATION}/include)
+install (FILES ${CATS_FOLDER}/CATS_Extentions/DLM_Fitters.h DESTINATION ${CATS_DESTINATION}/include)
+install (FILES ${CATS_FOLDER}/DLM_RootTools/DLM_SubPads.h DESTINATION ${CATS_DESTINATION}/include)
+install (FILES ${CATS_FOLDER}/DLM_RootTools/DLM_DrawingTools.h DESTINATION ${CATS_DESTINATION}/include)
+install (FILES ${CATS_FOLDER}/DLM_RootTools/DLM_HistoAnalysis.h DESTINATION ${CATS_DESTINATION}/include)
+install (FILES ${CATS_FOLDER}/DLM_RootTools/DLM_RootWrapper.h DESTINATION ${CATS_DESTINATION}/include)
+install (FILES ${CATS_FOLDER}/DLM_RootTools/DLM_DecayMatrix.h DESTINATION ${CATS_DESTINATION}/include)
 install (PROGRAMS ${CATS_FOLDER}/bin/cats-config DESTINATION ${CATS_DESTINATION}/bin)
 
 file(WRITE ${CATS_DESTINATION}/bin/CMakeDLM.txt "${PROJECT_NAME}\n")
